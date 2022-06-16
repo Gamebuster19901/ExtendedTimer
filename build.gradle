@@ -29,3 +29,15 @@ dependencies {
 
 println JavaVersion.current().toString();
 println JavaVersion.current().isJava11Compatible().toString();
+
+jar {
+	manifest {
+		attributes(
+			'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' '),
+			'MixinConfigs': 'mixins.json',
+			'Main-Class': 'com.gamebuster19901.speedsplit.Main',
+			'Specification-Version': 11,
+			'Multi-Release': 'true'
+		)
+	}
+}
