@@ -58,7 +58,7 @@ public class Main {
 				if(lng % 2 == 0) {
 					Long start = dis.readLong();
 					Long end = dis.readLong();
-					window.pauseTimer.pauses.add(new RealTimer(start, end));
+					window.pauseTimer.pauses.add(new Pause(start, end));
 				}
 			}
 		}

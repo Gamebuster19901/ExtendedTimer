@@ -8,7 +8,7 @@ public class PausingTimer implements Timed {
 
 	private RealTimer parent;
 	
-	public ArrayList<RealTimer> pauses = new ArrayList<RealTimer>();
+	public ArrayList<Pause> pauses = new ArrayList<Pause>();
 	
 	public PausingTimer(RealTimer parent) {
 		this.parent = parent;
@@ -34,27 +34,70 @@ public class PausingTimer implements Timed {
 		return parent.hasEnd();
 	}
 	
-	public RealTimer getLastTimer() {
+	public Pause getLastPause() {
 		if(pauses.isEmpty()) {
 			return null;
 		}
 		return pauses.get(pauses.size() - 1);
 	}
 	
-	public void pause() {
-		if(getStart() == null || getEnd() != null || getLastTimer() != null && getLastTimer().getEnd() == null) {
-			throw new IllegalStateException();
+	public void start() {
+		if(parent.hasStart()) {
+			throw new IllegalStateException("Cannot start: Timer already started");
 		}
-		RealTimer timer = new RealTimer(Instant.now().toEpochMilli());
-		pauses.add(timer);
+		parent.start();
+	}
+	
+	public void pause() {
+		if(getStart() == null) {
+			throw new IllegalStateException("Cannot pause: Timer hasn't started");
+		}
+		if(getEnd() != null) {
+			throw new IllegalStateException("Cannot pause: Timer is stopped");
+		}	
+		if(getLastPause() == null || !getLastPause().stillPaused()) {
+			Pause pause = new Pause();
+			pauses.add(pause);
+		}
+		else {
+			throw new IllegalStateException("Cannot pause: Already paused");
+		}
+	}
+	
+	public void stop() {
+		if(getStart() == null) {
+			throw new IllegalStateException("Cannot stop: Timer hasn't started");
+		}
+		if(getEnd() != null) {
+			throw new IllegalStateException("Cannot stop: Timer already stopped");
+		}
+		if(getLastPause() != null && getLastPause().stillPaused()) {
+			System.out.println("Stopping timer - Unpausing subtimer.");
+			getLastPause().unpause();
+		}
+		parent.stop();
+		System.out.println("Timer Stopped!");
+	}
+	
+	public boolean isPaused() {
+		return hasStart() && getLastPause() != null && !getLastPause().hasEnd();
 	}
 	
 	public void unpause() {
-		getLastTimer().stop();
+		if(!hasStart()) {
+			throw new IllegalStateException("Cannot unpause: Timer not started");
+		}
+		if(hasEnd()) {
+			throw new IllegalStateException("Cannot unpause: Timer stopped");
+		}
+		if(!isPaused()) {
+			throw new IllegalStateException("Cannot unpause: Timer not paused");
+		}
+		getLastPause().stop();
 	}
 	
 	public void undo() {
-		RealTimer lastTimer = getLastTimer();
+		RealTimer lastTimer = getLastPause();
 		if(lastTimer == null) {
 			throw new IllegalStateException();
 		}
@@ -70,12 +113,17 @@ public class PausingTimer implements Timed {
 	public Duration getDuration() {
 		if(hasStart()) {
 			Duration duration = Timed.super.getDuration();
-			for(RealTimer timer : pauses) {
-				if(timer.hasEnd()) {
-					duration = duration.minus(timer.getDuration());
+			//System.out.println("------");
+			for(Pause pause: pauses) {
+
+				
+				if(pause.stillPaused()) {
+					//System.out.println(pause.getDuration() + " (still paused)");
+					duration = duration.minus(pause.getDuration());
 				}
 				else {
-					duration = duration.minus(TimeUtils.since(timer.getStart()));
+					duration = duration.minus(pause.getDuration());
+					//System.out.println(pause.getDuration() + " (pause complete)");
 				}
 			}
 			return duration;
