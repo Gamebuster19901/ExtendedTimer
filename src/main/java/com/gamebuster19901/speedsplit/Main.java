@@ -10,8 +10,8 @@ import java.io.IOException;
 
 public class Main {
 
-	private static RealTimer timer;
-	private static File file = new File("./time.speed");
+	public static RealTimer timer;
+	public static File file = new File("./time.speed");
 	private static Window window;
 	
 	public static void main(String[] args) throws IOException {

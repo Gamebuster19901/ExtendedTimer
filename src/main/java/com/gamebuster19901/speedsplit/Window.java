@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -42,6 +43,7 @@ public class Window extends JFrame {
 		JButton pause = new JButton("Pause");
 		JButton unpause = new JButton("Unpause");
 		JButton undo = new JButton("Undo");
+		JButton reset = new JButton("Reset");
 		time.setForeground(GBColor);
 		pauseTime.setForeground(GBColor);
 		currentTime.setForeground(GBColor);
@@ -61,8 +63,9 @@ public class Window extends JFrame {
 		panel.add(stop, c);
 		panel.add(pause, c);
 		panel.add(unpause,c);
+		panel.add(reset, c);
 		c.gridy = 1;
-		c.gridwidth = 4;
+		c.gridwidth = 5;
 		c.anchor = c.CENTER;
 		c.fill = GridBagConstraints.CENTER;
 		panel.add(time, c);
@@ -72,7 +75,7 @@ public class Window extends JFrame {
 		panel.add(currentTime, c);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridy = 4;
-		c.gridwidth = 4;
+		c.gridwidth = 5;
 
 		panel.add(undo, c);
 		
@@ -92,17 +95,29 @@ public class Window extends JFrame {
 			pauseTimer.unpause();
 		});
 		undo.addActionListener((e) -> {
-			if(timer.hasEnd()) {
-				timer.undo();
+			if(this.timer.hasEnd()) {
+				this.timer.undo();
 			}
 			if(pauseTimer.getLastPause() == null) {
-				timer.undo();
+				this.timer.undo();
 			}
 			else {
 				pauseTimer.undo();
 			}
 		});
-		
+		reset.addActionListener((e) -> {
+			if(Main.file.exists()) {
+				Main.file.delete();
+			}
+			try {
+				Main.file.createNewFile();
+			} catch (IOException e1) {
+				throw new Error(e1);
+			}
+			Main.timer = new RealTimer();
+			this.timer = Main.timer;
+			this.pauseTimer= new PausingTimer(Main.timer);
+		});
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
