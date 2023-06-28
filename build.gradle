@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+	compile group: 'com.github.kwhat', name: 'jnativehook', version: '2.2.2'
 }
 
 println JavaVersion.current().toString();

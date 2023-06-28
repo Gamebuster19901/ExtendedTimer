@@ -8,6 +8,9 @@ import java.io.FileOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
+
 public class Main {
 
 	public static RealTimer timer;
@@ -15,6 +18,15 @@ public class Main {
 	private static Window window;
 	
 	public static void main(String[] args) throws IOException {
+		
+		try {
+			GlobalScreen.registerNativeHook();
+		} catch (NativeHookException e1) {
+			UnsatisfiedLinkError err = new UnsatisfiedLinkError();
+			err.initCause(e1);
+			throw err;
+		}
+		
 		DataInputStream dis = null;
 		if(args.length > 0) {
 			file = new File(args[0]);

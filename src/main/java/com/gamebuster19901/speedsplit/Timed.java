@@ -14,7 +14,7 @@ public interface Timed {
 	public boolean hasEnd();
 	
 	public default String getFormattedText() {
-		return TimeUtils.toReadableTimerDuration(getDuration(), false);
+		return TimeUtils.toReadableTimerDuration(getDuration(), false, true);
 	}
 	
 	public default Duration getDuration() {

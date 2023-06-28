@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Robot;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,11 +16,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class Window extends JFrame {
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+
+public class Window extends JFrame implements NativeKeyListener {
 	
 	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMM d yyyy HH:mm:ss z", Locale.ENGLISH);
 	public static final Color GBColor = Color.decode("0x7F3FA5");
 	
+	Robot robot;
 	RealTimer timer;
 	PausingTimer pauseTimer;
 	JLabel time;
@@ -95,33 +101,41 @@ public class Window extends JFrame {
 			pauseTimer.unpause();
 		});
 		undo.addActionListener((e) -> {
-			if(this.timer.hasEnd()) {
-				this.timer.undo();
-			}
-			if(pauseTimer.getLastPause() == null) {
-				this.timer.undo();
-			}
-			else {
-				pauseTimer.undo();
-			}
+			undo();
 		});
 		reset.addActionListener((e) -> {
-			if(Main.file.exists()) {
-				Main.file.delete();
-			}
-			try {
-				Main.file.createNewFile();
-			} catch (IOException e1) {
-				throw new Error(e1);
-			}
-			Main.timer = new RealTimer();
-			this.timer = Main.timer;
-			this.pauseTimer= new PausingTimer(Main.timer);
+			reset();
 		});
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		GlobalScreen.addNativeKeyListener(this);
 	}
 	
+	private void undo() {
+		if(this.timer.hasEnd()) {
+			this.timer.undo();
+		}
+		if(pauseTimer.getLastPause() == null) {
+			this.timer.undo();
+		}
+		else {
+			pauseTimer.undo();
+		}
+	}
+	
+	private void reset() {
+		if(Main.file.exists()) {
+			Main.file.delete();
+		}
+		try {
+			Main.file.createNewFile();
+		} catch (IOException e1) {
+			throw new Error(e1);
+		}
+		Main.timer = new RealTimer();
+		this.timer = Main.timer;
+		this.pauseTimer= new PausingTimer(Main.timer);
+	}
 	
 	@Override
 	public Component add(Component component) {
@@ -154,6 +168,21 @@ public class Window extends JFrame {
 		}
 		this.repaint();
 		this.revalidate();
+	}
+	
+	@Override
+	public void nativeKeyTyped(NativeKeyEvent e) {
+		if(e.getKeyChar() == '/') {
+			if(!pauseTimer.hasStart()) {
+				pauseTimer.start();
+			}
+			else if(!pauseTimer.hasEnd()){
+				pauseTimer.stop();
+			}
+			else {
+				reset();
+			}
+		}
 	}
 	
 }

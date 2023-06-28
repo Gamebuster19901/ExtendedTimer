@@ -133,7 +133,7 @@ public class PausingTimer implements Timed {
 
 	@Override
 	public String getFormattedText() {
-		return TimeUtils.toReadableTimerDuration(getDuration(), parent.getDuration().toHours() > 0);
+		return TimeUtils.toReadableTimerDuration(getDuration(), parent.getDuration().toHours() > 0, true);
 	}
 	
 }

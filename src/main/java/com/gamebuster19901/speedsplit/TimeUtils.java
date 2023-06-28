@@ -134,7 +134,7 @@ public final class TimeUtils {
 		return time;
 	}
 	
-	public static String toReadableTimerDuration(Duration duration, boolean forceHours) {
+	public static String toReadableTimerDuration(Duration duration, boolean forceHours, boolean forceMilli) {
 		String ret = "";
 		if(duration.toHours() > 0 || forceHours) {
 			ret = duration.toHours() + ":";
@@ -152,7 +152,7 @@ public final class TimeUtils {
 		ret = ret + duration.toSecondsPart();
 
 		
-		if(duration.toHours() == 0 && !forceHours) {
+		if(forceMilli || (duration.toHours() == 0 && !forceHours)) {
 			ret = ret + ":";
 			if(duration.toMillisPart() < 100) {
 				if(duration.toMillisPart() < 10) {
