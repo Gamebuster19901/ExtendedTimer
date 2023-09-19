@@ -1,11 +1,10 @@
-package com.gamebuster19901.speedsplit;
+package com.gamebuster19901.speedsplit.gui;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Robot;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,23 +15,25 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.gamebuster19901.speedsplit.Main;
+import com.gamebuster19901.speedsplit.PausingTimer;
+import com.gamebuster19901.speedsplit.RealTimer;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 
-public class Window extends JFrame implements NativeKeyListener {
+public class TimerWindow extends JFrame implements NativeKeyListener {
 	
 	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MMM d yyyy HH:mm:ss z", Locale.ENGLISH);
 	public static final Color GBColor = Color.decode("0x7F3FA5");
 	
-	Robot robot;
 	RealTimer timer;
 	PausingTimer pauseTimer;
 	JLabel time;
 	JLabel pauseTime;
 	JLabel currentTime;
 
-	public Window(RealTimer timer) {
+	public TimerWindow(RealTimer timer) {
 		this.setTitle("Extended Speedrun Timer");
 		this.timer = timer;
 		this.pauseTimer = new PausingTimer(timer);
@@ -142,6 +143,10 @@ public class Window extends JFrame implements NativeKeyListener {
 		Component c = super.add(component);
 		component.setVisible(true);
 		return c;
+	}
+	
+	public PausingTimer getPauseTimer() {
+		return pauseTimer;
 	}
 	
 	public void update() {
